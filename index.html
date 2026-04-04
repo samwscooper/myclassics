@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myclassics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Special+Elite&display=swap');
+
+        :root {
+            --purple-main: #6b0099;
+            --purple-light: #9932cc;
+            --purple-dark: #4b0082;
+            --panel-width: 260px;
+            --panel-gap: 30px;   /* panel's offset from viewport edge */
+            --content-gap: 60px; /* gap between panel right edge and content */
+        }
+
+        .flame-overlay {
+            position: fixed;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background: url('https://www.icegif.com/wp-content/uploads/2022/09/icegif-1624.gif') repeat-x bottom;
+            background-size: contain;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .flame-overlay::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top,
+                var(--purple-main) 0%,
+                var(--purple-main) 5%,
+                rgba(107, 0, 153, 0.8) 10%,
+                rgba(107, 0, 153, 0.2) 30%,
+                rgba(107, 0, 153, 0.1) 50%,
+                transparent 100%);
+            pointer-events: none;
+        }
+
+        body {
+            background-color: #ffffff;
+            background-image:
+                linear-gradient(to right, #000000 50%, #ffffff 50%),
+                linear-gradient(to bottom, #000000 50%, #ffffff 50%);
+            background-size: 40px 40px;
+            background-blend-mode: difference;
+            position: relative;
+            color: #ffffff;
+            font-family: "Permanent Marker", cursive;
+            margin: 0;
+            padding: 40px 40px 160px;
+            min-height: 100vh;
+            cursor: url('https://cur.cursors-4u.net/others/oth-2/oth116.cur'), auto;
+            box-sizing: border-box;
+        }
+
+        /* ── Two-column centered wrapper ── */
+        .page-wrapper {
+            display: flex;
+            gap: var(--content-gap);
+            max-width: 1140px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ── About Panel (left, sticky) ── */
+        .about-panel {
+            position: sticky;
+            top: 40px;
+            width: var(--panel-width);
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid var(--purple-main);
+            padding: 15px;
+            box-shadow: 0 0 20px var(--purple-main);
+            z-index: 10;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .about-panel::-webkit-scrollbar {
+            width: 6px;
+            background: #000000;
+        }
+
+        .about-panel::-webkit-scrollbar-thumb {
+            background: var(--purple-main);
+            border-radius: 4px;
+        }
+
+        .about-panel h2 {
+            color: #ffffff;
+            font-family: "Special Elite", serif;
+            font-size: 20px;
+            margin: 0 0 12px 0;
+            text-align: center;
+            text-transform: lowercase;
+            transform: skew(-1deg);
+            text-shadow: 2px 2px 0 var(--purple-dark);
+        }
+
+        .about-avatar {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--purple-main);
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .about-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #dddddd;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin-bottom: 14px;
+        }
+
+        .about-divider {
+            border: none;
+            border-top: 1px solid var(--purple-main);
+            margin: 12px 0;
+        }
+
+        .about-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .about-link {
+            display: block;
+            background: linear-gradient(45deg, var(--purple-dark), var(--purple-main));
+            color: #ffffff;
+            text-decoration: none;
+            text-align: center;
+            padding: 7px 10px;
+            font-size: 13px;
+            transform: skew(-5deg);
+            box-shadow: -2px -2px 0 #000000, 2px 2px 0 #000000;
+            text-shadow: 1px 1px 0 #000000;
+            transition: all 0.2s;
+        }
+
+        .about-link:hover {
+            background: linear-gradient(45deg, var(--purple-main), var(--purple-light));
+            transform: skew(-5deg) translateY(-2px);
+        }
+
+        /* ── Main container (header panel) ── */
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid var(--purple-main);
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 0 20px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px var(--purple-main);
+            z-index: 1;
+            box-sizing: border-box;
+        }
+
+        .container::before {
+            content: "⛧";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(5);
+            color: var(--purple-main);
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            font-family: "Special Elite", serif;
+            font-size: 52px;
+            margin: 20px 0;
+            letter-spacing: 4px;
+            position: relative;
+            text-transform: lowercase;
+            transform: skew(-1deg);
+            text-shadow:
+                -3px -3px 0 var(--purple-main),
+                3px -3px 0 var(--purple-main),
+                -3px 3px 0 var(--purple-main),
+                3px 3px 0 var(--purple-main);
+        }
+
+        h1::before, h1::after { content: none; }
+
+        h1::before { left: -20px; }
+        h1::after  { right: -20px; }
+
+        .marquee {
+            background: var(--purple-main);
+            padding: 10px;
+            margin: 20px 0;
+            color: #ffffff;
+            font-family: "Special Elite", serif;
+            text-transform: lowercase;
+            font-size: 16px;
+            text-shadow: 2px 2px 0 #000000;
+            transform: skew(-1deg);
+            animation: textPulse 1.5s infinite;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .marquee-inner {
+            display: inline-block;
+            white-space: nowrap;
+            will-change: transform;
+            animation: marquee-scroll 18s linear infinite;
+        }
+
+        @keyframes marquee-scroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        @keyframes textPulse {
+            0%   { text-shadow: 2px 2px 0 #000000; }
+            50%  { text-shadow: 2px 2px 0 #000000, 0 0 20px var(--purple-light); }
+            100% { text-shadow: 2px 2px 0 #000000; }
+        }
+
+        .spotify-container {
+            margin: 20px 0 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Blog Panel ── */
+        .blog-container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid var(--purple-main);
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 0 20px 0;
+            position: relative;
+            box-shadow: 0 0 20px var(--purple-main);
+            z-index: 1;
+            box-sizing: border-box;
+        }
+
+        .blog-container h2 {
+            color: #ffffff;
+            font-family: "Special Elite", serif;
+            font-size: 30px;
+            margin: 0 0 20px 0;
+            text-align: center;
+            text-transform: lowercase;
+            transform: skew(-1deg);
+            text-shadow: 2px 2px 0 var(--purple-dark);
+        }
+
+        .blog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ── Blog Post Card ── */
+        .blog-post {
+            background: rgba(107, 0, 153, 0.15);
+            border: 1px solid rgba(107, 0, 153, 0.4);
+            border-radius: 4px;
+            padding: 16px;
+            transition: background 0.3s;
+            position: relative;
+        }
+
+        .blog-post:hover {
+            background: rgba(107, 0, 153, 0.25);
+        }
+
+        .blog-post-layout {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .blog-cover {
+            width: 120px;
+            min-width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 2px solid var(--purple-main);
+            flex-shrink: 0;
+        }
+
+        .blog-cover-placeholder {
+            width: 120px;
+            min-width: 120px;
+            height: 120px;
+            background: rgba(107, 0, 153, 0.3);
+            border: 2px solid var(--purple-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+
+        .blog-meta {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .blog-post-title {
+            font-family: "Special Elite", serif;
+            font-size: 26px;
+            color: #ffffff;
+            margin-bottom: 2px;
+            text-shadow: 1px 1px 0 #000000;
+            word-wrap: break-word;
+        }
+
+        .blog-post-artist {
+            font-size: 15px;
+            color: var(--purple-light);
+            margin-bottom: 6px;
+            text-shadow: 1px 1px 0 #000000;
+        }
+
+        .blog-post-dateline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .blog-post-date {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .star-rating {
+            color: var(--purple-light);
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        .star-rating .filled { color: #ffffff; }
+
+        .blog-post-body {
+            color: #dddddd;
+            font-size: 14px;
+            line-height: 1.7;
+            word-wrap: break-word;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin-top: 14px;
+        }
+
+        .blog-post-body p {
+            margin: 0 0 12px 0;
+        }
+
+        .blog-post-body strong { font-weight: 700; color: #ffffff; }
+        .blog-post-body em { font-style: italic; }
+
+        .post-subheading {
+            font-family: "Special Elite", serif;
+            font-size: 17px;
+            color: #ffffff;
+            margin: 22px 0 6px 0;
+            text-shadow: 1px 1px 0 #000000;
+        }
+
+        .blog-video-wrap {
+            margin-top: 14px;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .blog-video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: 2px solid var(--purple-main);
+        }
+
+        .blog-post-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .blog-post:hover .blog-post-actions { opacity: 1; }
+
+        .blog-post-actions button {
+            background: transparent;
+            border: 1px solid var(--purple-main);
+            color: var(--purple-main);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 3px 10px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .blog-post-actions button:hover {
+            background: var(--purple-main);
+            color: #ffffff;
+        }
+
+        /* ── Blog Form ── */
+        .blog-form {
+            background: rgba(107, 0, 153, 0.25);
+            border: 2px solid var(--purple-main);
+            border-radius: 4px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .blog-form input[type="text"],
+        .blog-form input[type="date"],
+        .blog-form input[type="url"],
+        .blog-form input[type="number"],
+        .blog-form textarea,
+        .blog-form select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--purple-main);
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 14px;
+            padding: 7px 8px;
+            border-radius: 2px;
+            box-sizing: border-box;
+        }
+
+        .blog-form textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .blog-form label {
+            font-size: 12px;
+            color: var(--purple-light);
+            margin-bottom: -4px;
+        }
+
+        .blog-form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .blog-form-row > * { flex: 1; }
+
+        .star-picker {
+            display: flex;
+            gap: 6px;
+            font-size: 24px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .star-picker span { color: rgba(107, 0, 153, 0.5); transition: color 0.15s; }
+        .star-picker span.on { color: #ffffff; }
+
+        .blog-form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .blog-form-buttons button {
+            background: var(--purple-dark);
+            border: none;
+            color: #ffffff;
+            padding: 7px 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transform: skew(-5deg);
+            transition: background 0.2s;
+        }
+
+        .blog-form-buttons button:hover { background: var(--purple-main); }
+
+        /* ── Add Post button ── */
+        .add-post-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 16px;
+            background: var(--purple-dark);
+            border: none;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+            transform: skew(-5deg);
+            transition: background 0.3s;
+        }
+
+        .add-post-btn:hover { background: var(--purple-main); }
+
+        /* ── Scrollbar (shared) ── */
+        ::-webkit-scrollbar       { width: 8px; background: #000000; }
+        ::-webkit-scrollbar-thumb { background: var(--purple-main); border-radius: 4px; }
+
+        /* ── Broken heart animation (kept) ── */
+        .broken-heart-left,
+        .broken-heart-right {
+            position: fixed; font-size: 48px; pointer-events: none;
+            z-index: 999; font-family: "Arial", sans-serif; will-change: transform, opacity;
+        }
+
+        .broken-heart-left::after {
+            content: '💔'; display: block; transform-origin: center;
+            clip-path: polygon(0 0, 45% 0, 45% 40%, 55% 60%, 45% 80%, 45% 100%, 0 100%);
+        }
+
+        .broken-heart-right::after {
+            content: '💔'; display: block; transform-origin: center;
+            clip-path: polygon(45% 0, 100% 0, 100% 100%, 45% 100%, 45% 80%, 55% 60%, 45% 40%);
+        }
+    </style>
+</head>
+<body>
+    <div class="flame-overlay"></div>
+
+    <div class="page-wrapper">
+    <!-- ── About Me Panel (left, sticky) ── -->
+    <div class="about-panel">
+        <h2>About</h2>
+        <img class="about-avatar"
+             src="fenceblossom.jpeg"
+             alt="avatar">
+        <p class="about-text">
+            Sam // 30 // WVxDC<br><br>
+            rambling on albums that have defined my journey. a safe space for pretension, reflection, and joy.<br><br>
+            absolute appalachian abolition
+        </p>
+    </div>
+
+    <div class="main-content">
+    <!-- ── Header Panel ── -->
+    <div class="container">
+        <h1>myclassics.</h1>
+
+        <div class="marquee"><span class="marquee-inner">I will relate this all in haste when summoned up to state my case // we all have something to protect, we are the same in that respect // I will relate this all in haste when summoned up to state my case // we all have something to protect, we are the same in that respect // </span></div>
+
+        <div class="spotify-container">
+            <iframe style="border-radius:12px"
+                    src="https://open.spotify.com/embed/playlist/44QifZufH7ZIT98gizFgSA?utm_source=generator&theme=0&autoplay=1&shuffle=1&playlistBarVisibility=false"
+                    width="100%"
+                    height="152"
+                    frameBorder="0"
+                    allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy">
+            </iframe>
+        </div>
+    </div>
+
+    <!-- ── Blog Posts Panel ── -->
+    <div class="blog-container">
+        <h2>Posts</h2>
+        <div id="blog-posts" class="blog-list">
+
+            <div class="blog-post">
+                <div class="blog-post-layout">
+                    <img class="blog-cover" src="embrace-embrace.jpeg" alt="Embrace - Embrace">
+                    <div class="blog-meta">
+                        <div class="blog-post-title">Embrace</div>
+                        <div class="blog-post-artist">Embrace</div>
+                        <div class="blog-post-dateline">
+                            <span class="blog-post-date">April 4, 2026</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="blog-post-body">
+                    <p>Alright! This is sort of a safe pick to lead off on, an album that I know very well. It's a certified banger and a classic in my world.</p>
+                    <p>Overall, this album is so unique and important. In real time, you can literally hear the influence that it had on everything that came after it, especially in the driving bass arrangements, the pretty guitar leads that pop in right where they need to, and the backing vocals that haunt and reinforce the melodies in all the right ways. You can hear Fugazi starting to form, but also you can hear so much of what punk would become. Probably doesn't need any more introduction, let's dive in.</p>
+
+                    <div class="post-subheading">Track 1 - Give Me Back</div>
+                    <p>This song is so sick. First thing you hear is the metronome ping, and the opening riff is heavy, driving, and classic. The guitars layer on each other to build it up before you're met with the vocal equivalent of a Mack truck plowing into a dealer's choice of any of the oppressive marble buildings that police downtown DC.</p>
+                    <p>The youth crew-esque "what can I do?" gang vocal is a calling card of hardcore in this era and really gives you the feeling that you're listening to hardcore record right off the bat. I love this song for that reason. A great opener to a great album. Driving, powerful. Then you get an anti-breakdown chant into a two-step. Give them back.</p>
+
+                    <div class="post-subheading">Track 2 - Dance Of Days</div>
+                    <p>This song starts a lot less melodically polished or organized up front than some of their catchier tunes. But, by the end of the first verse, you're starting to hear this really subtle tortured melody in the guitars.</p>
+                    <p>The chorus breaks into what can only be described as a proto-Green Day hook, which is super short lived. Blistering rock guitar leads contrast against the punch and drive of the bass. More spastic hits of gang vocal. Another mini chorus. "But that's okay," you find yourself thinking "maybe I went a little too fast".</p>
+                    <p>You start to feel everything around you start to fall apart as you're spinning around in a dirty music video where Robert Smith spontaneously combusts. "But that's okay." Powerful and spiteful finish.</p>
+                    <p>Cool tune.</p>
+
+                    <div class="post-subheading">Track 3 - Building</div>
+                    <p>Bass line, front and center. Melody? Front and center. One of my favorite things about this album is that you start to hear all of the songs that came after it in every song. The abrupt rests, the descending progression that resolves. It literally set the stage for everything that came after for 30 years.</p>
+                    <p>This one almost feels like it was limited by the drums, in a way that I think probably serves the song better than anything else would have.</p>
+                    <p>The dissonant and beautiful guitars that hum along with "nothing seems to work out right" set the stage for a powerful vocal return. "I'm a failure". Full stop.</p>
+
+                    <div class="post-subheading">Track 4 - Past</div>
+                    <p>Rumbling machine gun drums and an ominous shine open this one up like a sunrise in Hanoi in 1969. Right into the fight. The verse sucks you in. The spite! "what a waste". A little bridge into muted guitars that open the second verse with a different feel. Same power. "I hid my feelings…" This track is a burner. 100 seconds of regret, spite and anger. Nuff said. 10/10</p>
+
+                    <div class="post-subheading">Track 5 - Spoke</div>
+                    <p>Drum roll, please. You don't know if the metronome sound in the intro is on purpose or not. Into this dark bass groove. "Life goes on and on". Kind of like post-goth dance party. Metronome comes back for a sec.</p>
+                    <p>The lead guitars underneath of everything define this album, they just shimmer along behind the scenes. Love the melody on this one and you can totally hear Fugazi starting to happen in a lot of these songs as they jump around from part to part.</p>
+
+                    <div class="post-subheading">Track 6 - Do Not Consider Yourself Free</div>
+                    <p>James Bond super spy intro. The lyrics in the first verse really reach out and grab you. A very straightforward groove here, nothing that you don't expect. They drop the title line and follow it with a sweet little riff in a vacuum before it breaks loose again.</p>
+                    <p>This is such a sick song, but it almost feels too simple in the context of the album. All of the less structurally homogenous tracks that surround almost leave you expecting something less straightforward, but this one cuts right to the point and stand on its own as a top track. One of my favorites from them.</p>
+
+                    <div class="post-subheading">Track 7 - No More Pain</div>
+                    <p>Eerie opening. Cemetery at midnight. "No more selfish tears." The rawness of his vocal ahead of what is really a beautiful series of little choruses is so impactful. Then you get a little schizophrenic laugh at all the little kids.</p>
+                    <p>I can't get over the duality of the dark goth stuff and the beautiful shimmery guitar parts. This band sounds like the Cure coming of age in the shadow of the grotesque behaviors of a ruling class of elites in the global capital of extractive and oppressive empire. And also if they didn't suck. I love the Cure, but they do kind of blow like a fire in Cairo.</p>
+
+                    <div class="post-subheading">Track 8 - I Wish I</div>
+                    <p>This is maybe a track that I've under-appreciated in the past. Great melody, but it's less intense than what you really want out of this album. This is more house party tempo / down tempo two step.</p>
+                    <p>Great song but I'm kind of stuck somewhere in the middle on it. Have I not given it enough praise in the past? I never played this on the radio at U92. It's a good song, but it lives somewhere in the in-between for me.</p>
+
+                    <div class="post-subheading">Track 9 - Said Gun</div>
+                    <p>You don't expect the punk beat at all here which is so cool. Sweet intro then it's 1&amp;2&amp;3&amp;4&amp;…. Then they hit you with this haunting backing vocal that's somehow Edgar Allen Poe and Blink-182 at the same time.</p>
+                    <p>Somehow this is a straight-edge rip on fratboy jock bro brew-brawlers but also on gun violence and violence in general. "You'd hate yourself if you had the chance, I guess you already do… you fuck yourselves up every night." Legendary XXX line. I'm not SXE so I'll hold my peace on this one</p>
+
+                    <div class="post-subheading">Track 10 - Can't Forgive</div>
+                    <p>Cool modulated guitar opener. This one, like almost all of these songs, is littered with quintessential cool little emocore lyrics. "Petty poets with poison pens forcing rhymes to get revenge." "I stare at things I don't want to see and selfishly assume they were built for me." "I am the fuck-up that I can't forgive"</p>
+                    <p>This song has some of my favorite guitar work so far on this album, and it is definitely an ass-kicker. It's such a shame that I didn't really listen to this album in earnest until after high school. I would probably have a lot of bad tattoos in whatever awful font I've decided to use on this website this week. This record contains levels of angst that my middle school brain would not have been able to comprehend.</p>
+
+                    <div class="post-subheading">Track 11 - Money</div>
+                    <p>This is a banger. I used to spin this on the radio in college after the fellas at the FCC went to bed for the night. Cool opening riff. As an adult with a decent job and a savings account, this resonates probably more than it did when I was broke and pissed about it. "There are no winners. We all lose." Boom! Take that, capitalists. "You put yourself up for sale. You're all sold out." #relatable</p>
+                    <p>This might be my favorite chorus on the album from a melodic perspective. And the little descending riff in-between "you put yourself" are masterful.</p>
+                    <p>The back half of this album is so good.</p>
+
+                    <div class="post-subheading">Track 12 - If I Never Thought About It</div>
+                    <p>You almost start to hear AFI in the opening of this one. Beautiful little guitar parts where you least expect them. Bass holds the keys to the song. Somewhat cryptic but relatable lyrics. No notes really. This song rules.</p>
+
+                    <div class="post-subheading">Track 13 - End Of A Year</div>
+                    <p>Hello dancefloor! "I don't like parties […] we smile, avoid unpleasant situations, maybe it will go away." Cheeky fuckers.</p>
+                    <p>"It's the end of a fucked up year. There's another one coming! (Oh, shit!)." Again 80's goth makes it's presence felt but it's like a sick parody of it. At the beginning of this song, for a split second, you might think that you've accidentally started listening to U2 or The Police or some shit. Then, that degrades back into Embrace. Such a cool track.</p>
+                    <p>"There will be no victory, no progress made, if we do not stand apart from the enemy […] Words are not enough."</p>
+
+                    <div class="post-subheading">Track 14 - Last Song</div>
+                    <p>A great way to say goodbye to the album. More Tom Delonge backing vocals (this is a good thing, surprisingly). It's crazy how pop this album can be while also sounding like a floor tom on a cold concrete garage floor covered in old paper trash.</p>
+                    <p>Great track.</p>
+
+                    <div class="post-subheading">Conclusion</div>
+                    <p>I honestly don't know how to describe this album in full. It's spastic, self-deprecating, spiteful, ironic, angry, regretful, powerful, and beautiful all at the same time. The lyrics are genre-defining. The hooks are powerful and infectious without ever feeling like radio bullshit. There will be many albums here that will be MY classics. This is not one of them. This album is a classic, you shouldn't need any convincing.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div> <!-- /.main-content -->
+    </div> <!-- /.page-wrapper -->
+
+    <script>
+    // ── Data ──────────────────────────────────────────────────────────────────
+    let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+
+    function savePosts() {
+        localStorage.setItem('blogPosts', JSON.stringify(posts));
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function escapeHtml(text) {
+        const d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
+
+    function parseMarkdown(text) {
+        if (!text) return '';
+        let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        html = html.replace(/\n/g, '<br>');
+        return html;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString + 'T00:00:00');
+        return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    function starsHtml(rating) {
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+            html += `<span class="${i <= rating ? 'filled' : ''}">★</span>`;
+        }
+        return html;
+    }
+
+    // Convert a YouTube watch URL to an embed URL
+    function toYouTubeEmbed(url) {
+        if (!url) return null;
+        // Already an embed
+        if (url.includes('youtube.com/embed/')) return url;
+        // youtu.be/ID
+        const short = url.match(/youtu\.be\/([A-Za-z0-9_-]+)/);
+        if (short) return `https://www.youtube.com/embed/${short[1]}`;
+        // youtube.com/watch?v=ID
+        const watch = url.match(/[?&]v=([A-Za-z0-9_-]+)/);
+        if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
+        return null;
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function renderPosts() {
+        const list = document.getElementById('blog-posts');
+        list.innerHTML = '';
+
+        const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (sorted.length === 0) {
+            list.innerHTML = '<p style="text-align:center;color:var(--purple-light);padding:20px;">no reviews yet — add your first one below ⛧</p>';
+            return;
+        }
+
+        sorted.forEach((post, idx) => {
+            // find original index for edit/delete
+            const origIdx = posts.indexOf(post);
+            list.appendChild(buildPostEl(post, origIdx));
+        });
+    }
+
+    function buildPostEl(post, idx) {
+        const div = document.createElement('div');
+        div.className = 'blog-post';
+
+        const embedUrl = toYouTubeEmbed(post.videoUrl);
+
+        const coverHtml = post.coverUrl
+            ? `<img class="blog-cover" src="${escapeHtml(post.coverUrl)}" alt="cover">`
+            : `<div class="blog-cover-placeholder">💿</div>`;
+
+        const videoHtml = embedUrl
+            ? `<div class="blog-video-wrap">
+                 <iframe src="${escapeHtml(embedUrl)}" allowfullscreen
+                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                 </iframe>
+               </div>`
+            : '';
+
+        div.innerHTML = `
+            <div class="blog-post-layout">
+                ${coverHtml}
+                <div class="blog-meta">
+                    <div class="blog-post-title">${escapeHtml(post.title || 'Untitled')}</div>
+                    ${post.artist ? `<div class="blog-post-artist">${escapeHtml(post.artist)}</div>` : ''}
+                    <div class="blog-post-dateline">
+                        <span class="blog-post-date">${formatDate(post.date)}</span>
+                        ${post.rating ? `<span class="star-rating">${starsHtml(post.rating)}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+            ${post.body ? `<div class="blog-post-body">${parseMarkdown(post.body)}</div>` : ''}
+            ${videoHtml}
+            <div class="blog-post-actions">
+                <button onclick="editPost(${idx})">Edit</button>
+                <button onclick="deletePost(${idx})">Delete</button>
+            </div>
+        `;
+        return div;
+    }
+
+    // ── New Post Form ─────────────────────────────────────────────────────────
+    function openNewPostForm() {
+        // Don't open a second form if one is already open
+        if (document.querySelector('.blog-form')) return;
+
+        const list = document.getElementById('blog-posts');
+        const today = new Date().toISOString().split('T')[0];
+        const formEl = buildForm({ date: today }, null);
+        list.insertBefore(formEl, list.firstChild);
+        formEl.querySelector('.form-title').focus();
+    }
+
+    function buildForm(data, idx) {
+        const form = document.createElement('div');
+        form.className = 'blog-form';
+
+        form.innerHTML = `
+            <div class="blog-form-row">
+                <div>
+                    <label>Album / Song Title</label>
+                    <input class="form-title" type="text" placeholder="Title..." value="${escapeHtml(data.title || '')}">
+                </div>
+                <div>
+                    <label>Artist</label>
+                    <input class="form-artist" type="text" placeholder="Artist..." value="${escapeHtml(data.artist || '')}">
+                </div>
+            </div>
+            <div class="blog-form-row">
+                <div>
+                    <label>Date</label>
+                    <input class="form-date" type="date" value="${data.date || ''}">
+                </div>
+                <div>
+                    <label>Rating</label>
+                    <div class="star-picker" id="star-picker-${idx === null ? 'new' : idx}">
+                        <span data-v="1">★</span>
+                        <span data-v="2">★</span>
+                        <span data-v="3">★</span>
+                        <span data-v="4">★</span>
+                        <span data-v="5">★</span>
+                    </div>
+                    <input class="form-rating" type="hidden" value="${data.rating || 0}">
+                </div>
+            </div>
+            <label>Cover Image URL</label>
+            <input class="form-cover" type="url" placeholder="https://..." value="${escapeHtml(data.coverUrl || '')}">
+            <label>YouTube Video URL (optional)</label>
+            <input class="form-video" type="url" placeholder="https://youtube.com/watch?v=..." value="${escapeHtml(data.videoUrl || '')}">
+            <label>Review (supports **bold** and *italic*)</label>
+            <textarea class="form-body" placeholder="Write your review here...">${escapeHtml(data.body || '')}</textarea>
+            <div class="blog-form-buttons">
+                <button onclick="savePost(this, ${idx})">
+                    ${idx === null ? 'Post Review' : 'Update Review'}
+                </button>
+                <button onclick="cancelForm(this)">Cancel</button>
+            </div>
+        `;
+
+        // Wire up star picker
+        const picker = form.querySelector('.star-picker');
+        const hiddenRating = form.querySelector('.form-rating');
+        let selectedRating = data.rating || 0;
+
+        function updateStars(val) {
+            picker.querySelectorAll('span').forEach(s => {
+                s.classList.toggle('on', parseInt(s.dataset.v) <= val);
+            });
+        }
+
+        updateStars(selectedRating);
+
+        picker.querySelectorAll('span').forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.v);
+                hiddenRating.value = selectedRating;
+                updateStars(selectedRating);
+            });
+            star.addEventListener('mouseover', () => updateStars(parseInt(star.dataset.v)));
+            star.addEventListener('mouseout', () => updateStars(selectedRating));
+        });
+
+        return form;
+    }
+
+    function savePost(btn, idx) {
+        const form = btn.closest('.blog-form');
+        const title    = form.querySelector('.form-title').value.trim();
+        const artist   = form.querySelector('.form-artist').value.trim();
+        const date     = form.querySelector('.form-date').value;
+        const rating   = parseInt(form.querySelector('.form-rating').value) || 0;
+        const coverUrl = form.querySelector('.form-cover').value.trim();
+        const videoUrl = form.querySelector('.form-video').value.trim();
+        const body     = form.querySelector('.form-body').value.trim();
+
+        if (!title && !body) { cancelForm(btn); return; }
+
+        const entry = {
+            title,
+            artist,
+            date: date || new Date().toISOString().split('T')[0],
+            rating,
+            coverUrl,
+            videoUrl,
+            body
+        };
+
+        if (idx === null) {
+            posts.unshift(entry);
+        } else {
+            posts[idx] = entry;
+        }
+
+        savePosts();
+        renderPosts();
+    }
+
+    function cancelForm(btn) {
+        btn.closest('.blog-form').remove();
+    }
+
+    function editPost(idx) {
+        // Remove any open form first
+        const existing = document.querySelector('.blog-form');
+        if (existing) existing.remove();
+
+        const list = document.getElementById('blog-posts');
+        const form = buildForm(posts[idx], idx);
+        // Insert form at top of list
+        list.insertBefore(form, list.firstChild);
+        form.querySelector('.form-title').focus();
+    }
+
+    function deletePost(idx) {
+        if (confirm('Delete this review?')) {
+            posts.splice(idx, 1);
+            savePosts();
+            renderPosts();
+        }
+    }
+
+    // ── Broken heart click effect ─────────────────────────────────────────────
+    function petalKeyframes() {
+        const s  = () => (Math.random() - 0.35) * 35; // gusts, slightly rightward biased
+        const d  = 300 + Math.random() * 220;          // 300–520px horizontal — wind dominates
+        const y  = 160 + Math.random() * 120;          // 160–280px vertical — gravity is secondary
+        const rotDir = Math.random() > 0.5 ? 1 : -1;
+        const rot    = rotDir * (80 + Math.random() * 80); // 80–160deg — dramatic tumble
+        const lift   = 20 + Math.random() * 25;            // initial upward catch
+        const dur    = 2800 + Math.random() * 4000; // 2.8s–6.8s, wide spread
+
+        return {
+            frames: [
+                { transform: `translate(0px, 0px) rotate(0deg)`,                                   opacity: 1    },
+                { transform: `translate(${d*0.06+s()}px, ${-lift}px) rotate(${rot*0.04}deg)`,      opacity: 1    }, // caught by gust, lifts
+                { transform: `translate(${d*0.18+s()}px, ${-lift*0.3}px) rotate(${rot*0.13}deg)`,  opacity: 1    }, // still carrying upward
+                { transform: `translate(${d*0.35+s()}px, ${y*0.15}px) rotate(${rot*0.3}deg)`,      opacity: 0.95 }, // starts to descend
+                { transform: `translate(${d*0.55+s()}px, ${y*0.42}px) rotate(${rot*0.55}deg)`,     opacity: 0.85 }, // drifting away
+                { transform: `translate(${d*0.76+s()}px, ${y*0.72}px) rotate(${rot*0.78}deg)`,     opacity: 0.45 }, // fading
+                { transform: `translate(${d+s()}px,      ${y}px)      rotate(${rot}deg)`,           opacity: 0    }, // gone
+            ],
+            duration: dur
+        };
+    }
+
+    function createBrokenHeart(x, y) {
+        const heartLeft  = document.createElement('div');
+        const heartRight = document.createElement('div');
+        heartLeft.className  = 'broken-heart-left';
+        heartRight.className = 'broken-heart-right';
+
+        [heartLeft, heartRight].forEach(el => {
+            const { frames, duration } = petalKeyframes(); // independent path per piece
+            el.style.left = `${x - 12}px`;
+            el.style.top  = `${y - 12}px`;
+            document.body.appendChild(el);
+            const anim = el.animate(frames, { duration, easing: 'ease-in', fill: 'forwards' });
+            anim.onfinish = () => el.remove();
+        });
+    }
+
+    document.addEventListener('click', e => {
+        // Don't trigger hearts on interactive elements
+        if (['INPUT', 'TEXTAREA', 'BUTTON', 'A', 'SELECT'].includes(e.target.tagName)) return;
+        createBrokenHeart(e.clientX, e.clientY);
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {});
+    </script>
+</body>
+</html>
