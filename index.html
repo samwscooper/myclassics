@@ -350,9 +350,9 @@
         }
 
         .blog-cover {
-            width: 120px;
-            min-width: 120px;
-            height: 120px;
+            width: auto;
+            min-width: 0;
+            height: 146px;
             object-fit: cover;
             border: 2px solid var(--purple-main);
             flex-shrink: 0;
@@ -450,6 +450,18 @@
             top: 0; left: 0;
             width: 100%; height: 100%;
             border: 2px solid var(--purple-main);
+        }
+
+        .blog-video-small {
+            width: 260px;
+            flex-shrink: 0;
+        }
+
+        .blog-video-small iframe {
+            width: 100%;
+            height: 146px;
+            border: 2px solid var(--purple-main);
+            display: block;
         }
 
         .blog-post-actions {
@@ -647,6 +659,12 @@
                         <div class="blog-post-dateline">
                             <span class="blog-post-date">April 4, 2026</span>
                         </div>
+                    </div>
+                    <div class="blog-video-small">
+                        <iframe src="https://www.youtube.com/embed/j3PvlH9b1_k?origin=https://myclassics.xyz"
+                                allowfullscreen
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                        </iframe>
                     </div>
                 </div>
 
