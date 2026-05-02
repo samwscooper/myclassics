@@ -259,26 +259,6 @@
             box-shadow: 0 0 20px var(--purple-main);
             z-index: 1;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            height: 72vh;
-            min-height: 500px;
-        }
-
-        .blog-posts-viewport {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 6px;
-        }
-
-        .blog-posts-viewport::-webkit-scrollbar {
-            width: 6px;
-            background: #000000;
-        }
-
-        .blog-posts-viewport::-webkit-scrollbar-thumb {
-            background: var(--purple-main);
-            border-radius: 4px;
         }
 
         .pagination {
@@ -605,6 +585,94 @@
             content: '💔'; display: block; transform-origin: center;
             clip-path: polygon(45% 0, 100% 0, 100% 100%, 45% 100%, 45% 80%, 55% 60%, 45% 40%);
         }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .filter-btn {
+            font-family: "Special Elite", serif;
+            font-size: 13px;
+            background: transparent;
+            border: 2px solid rgba(107, 0, 153, 0.5);
+            color: var(--purple-light);
+            padding: 4px 14px;
+            cursor: pointer;
+            transform: skew(-3deg);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--purple-main);
+            color: #ffffff;
+            border-color: var(--purple-main);
+        }
+
+        .search-input {
+            font-family: "Special Elite", serif;
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(107, 0, 153, 0.5);
+            color: #ffffff;
+            padding: 4px 12px;
+            flex-grow: 1;
+            min-width: 120px;
+            outline: none;
+        }
+
+        .search-input::placeholder { color: rgba(153, 50, 204, 0.5); }
+        .search-input:focus { border-color: var(--purple-light); }
+
+        /* ── Post tags ── */
+        .post-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .post-tag {
+            font-family: "Special Elite", serif;
+            font-size: 11px;
+            color: var(--purple-light);
+            background: rgba(107, 0, 153, 0.2);
+            border: 1px solid rgba(107, 0, 153, 0.6);
+            border-radius: 2px;
+            padding: 2px 8px;
+            text-transform: lowercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Tag checkboxes in form ── */
+        .form-tags-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .tag-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: "Special Elite", serif;
+            font-size: 14px;
+            color: var(--purple-light);
+            cursor: pointer;
+        }
+
+        .tag-checkbox-label input[type="checkbox"] {
+            accent-color: var(--purple-main);
+            width: 14px;
+            height: 14px;
+        }
     </style>
 </head>
 <body>
@@ -618,9 +686,7 @@
              src="fenceblossom.jpeg"
              alt="avatar">
         <p class="about-text">
-            Sam // 30 // WVxDC<br><br>
-            rambling on albums that have defined my journey. a safe space for pretension, reflection, and joy.<br><br>
-            absolute appalachian abolition
+            born in the mountains many years ago. I've seen lightning flashing and I've heard thunder roll. rambling, mourning, & cherishing the journey
         </p>
     </div>
 
@@ -647,10 +713,46 @@
     <!-- ── Blog Posts Panel ── -->
     <div class="blog-container">
         <h2>Posts</h2>
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="setTagFilter(null, this)">all</button>
+            <button class="filter-btn" onclick="setTagFilter('review', this)">review</button>
+            <button class="filter-btn" onclick="setTagFilter('original', this)">original</button>
+            <input class="search-input" id="search-input" type="text" placeholder="search..." oninput="setSearch(this.value)">
+        </div>
         <div class="blog-posts-viewport">
         <div id="blog-posts" class="blog-list">
 
-            <div class="blog-post">
+            <div class="blog-post" data-tags="original" data-title="bridge day, 2021" data-artist="sam">
+                <div class="blog-video-wrap">
+                    <iframe src="https://www.youtube.com/embed/A94iafQ5RzE?si=3-M5vJilXhBrUdQw"
+                            allowfullscreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                    </iframe>
+                </div>
+                <div class="post-tags" style="margin-top:12px;">
+                    <span class="post-tag">original</span>
+                </div>
+                <div class="blog-post-date" style="margin-top:6px;">May 2, 2026</div>
+                <div class="blog-post-body">
+                    <p>
+                        bridge day, 2021<br>
+                        the sun is shining on<br>
+                        the water<br>
+                        is green and murky<br>
+                        I fear it won't be so sentimental now<br>
+                        around here
+                    </p>
+                    <p>
+                        bridge day, 2021<br>
+                        the sun is shining on<br>
+                        like bass rock before<br>
+                        the fall a bit too far<br>
+                        a medivac extracts a lifeless body from the plunge
+                    </p>
+                </div>
+            </div>
+
+            <div class="blog-post" data-tags="review" data-title="embrace" data-artist="embrace">
                 <div class="blog-post-layout">
                     <img class="blog-cover" src="Embrace-Embrace.jpeg" alt="Embrace - Embrace">
                     <div class="blog-meta">
@@ -658,6 +760,9 @@
                         <div class="blog-post-artist">Embrace</div>
                         <div class="blog-post-dateline">
                             <span class="blog-post-date">April 4, 2026</span>
+                        </div>
+                        <div class="post-tags">
+                            <span class="post-tag">review</span>
                         </div>
                     </div>
                     <div class="blog-video-small">
@@ -746,6 +851,10 @@
     <script>
     // ── Data ──────────────────────────────────────────────────────────────────
     let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+    let activeTag      = null;
+    let searchQuery    = '';
+    let staticPostsHtml = null; // snapshot of the hardcoded HTML posts
+
 
     function savePosts() {
         localStorage.setItem('blogPosts', JSON.stringify(posts));
@@ -798,20 +907,64 @@
     // ── Render ────────────────────────────────────────────────────────────────
     function renderPosts() {
         const list = document.getElementById('blog-posts');
-        list.innerHTML = '';
+        const isFiltering = activeTag !== null || searchQuery !== '';
 
-        const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        if (sorted.length === 0) {
-            list.innerHTML = '<p style="text-align:center;color:var(--purple-light);padding:20px;">no reviews yet — add your first one below ⛧</p>';
+        // No dynamic posts — filter static HTML posts via data attributes
+        if (posts.length === 0) {
+            list.innerHTML = staticPostsHtml || '';
+            if (activeTag || searchQuery) {
+                Array.from(list.querySelectorAll('.blog-post')).forEach(el => {
+                    const tags   = (el.dataset.tags || '').split(',');
+                    const title  = (el.dataset.title || '').toLowerCase();
+                    const artist = (el.dataset.artist || '').toLowerCase();
+                    let keep = true;
+                    if (activeTag) keep = tags.includes(activeTag);
+                    if (searchQuery) {
+                        const q = searchQuery.toLowerCase();
+                        keep = keep && (title.includes(q) || artist.includes(q));
+                    }
+                    if (!keep) el.remove();
+                });
+                if (list.querySelectorAll('.blog-post').length === 0) {
+                    list.innerHTML = `<p style="text-align:center;color:var(--purple-light);padding:20px;">no posts match ⛧</p>`;
+                }
+            }
+            setupPagination();
             return;
         }
 
-        sorted.forEach((post, idx) => {
-            // find original index for edit/delete
+        list.innerHTML = '';
+
+        let filtered = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (activeTag) {
+            filtered = filtered.filter(p => Array.isArray(p.tags) && p.tags.includes(activeTag));
+        }
+
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(p =>
+                (p.title  || '').toLowerCase().includes(q) ||
+                (p.artist || '').toLowerCase().includes(q) ||
+                (p.body   || '').toLowerCase().includes(q)
+            );
+        }
+
+        if (filtered.length === 0) {
+            const msg = isFiltering
+                ? 'no posts match ⛧'
+                : 'no reviews yet — add your first one below ⛧';
+            list.innerHTML = `<p style="text-align:center;color:var(--purple-light);padding:20px;">${msg}</p>`;
+            setupPagination();
+            return;
+        }
+
+        filtered.forEach(post => {
             const origIdx = posts.indexOf(post);
             list.appendChild(buildPostEl(post, origIdx));
         });
+
+        setupPagination();
     }
 
     function buildPostEl(post, idx) {
@@ -842,6 +995,7 @@
                         <span class="blog-post-date">${formatDate(post.date)}</span>
                         ${post.rating ? `<span class="star-rating">${starsHtml(post.rating)}</span>` : ''}
                     </div>
+                    ${post.tags && post.tags.length ? `<div class="post-tags">${post.tags.map(t => `<span class="post-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                 </div>
             </div>
             ${post.body ? `<div class="blog-post-body">${parseMarkdown(post.body)}</div>` : ''}
@@ -902,6 +1056,15 @@
             <input class="form-cover" type="url" placeholder="https://..." value="${escapeHtml(data.coverUrl || '')}">
             <label>YouTube Video URL (optional)</label>
             <input class="form-video" type="url" placeholder="https://youtube.com/watch?v=..." value="${escapeHtml(data.videoUrl || '')}">
+            <label>Tags</label>
+            <div class="form-tags-row">
+                <label class="tag-checkbox-label">
+                    <input type="checkbox" class="form-tag" value="review" ${(data.tags || []).includes('review') ? 'checked' : ''}> review
+                </label>
+                <label class="tag-checkbox-label">
+                    <input type="checkbox" class="form-tag" value="original" ${(data.tags || []).includes('original') ? 'checked' : ''}> original
+                </label>
+            </div>
             <label>Review (supports **bold** and *italic*)</label>
             <textarea class="form-body" placeholder="Write your review here...">${escapeHtml(data.body || '')}</textarea>
             <div class="blog-form-buttons">
@@ -946,6 +1109,7 @@
         const rating   = parseInt(form.querySelector('.form-rating').value) || 0;
         const coverUrl = form.querySelector('.form-cover').value.trim();
         const videoUrl = form.querySelector('.form-video').value.trim();
+        const tags     = Array.from(form.querySelectorAll('.form-tag:checked')).map(cb => cb.value);
         const body     = form.querySelector('.form-body').value.trim();
 
         if (!title && !body) { cancelForm(btn); return; }
@@ -957,6 +1121,7 @@
             rating,
             coverUrl,
             videoUrl,
+            tags,
             body
         };
 
@@ -992,6 +1157,63 @@
             savePosts();
             renderPosts();
         }
+    }
+
+    // ── Filter / Search ───────────────────────────────────────────────────────
+    function setTagFilter(tag, btn) {
+        activeTag = tag;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPosts();
+    }
+
+    function setSearch(query) {
+        searchQuery = query.trim();
+        renderPosts();
+    }
+
+    // ── Pagination ────────────────────────────────────────────────────────────
+    function setupPagination() {
+        const postEls    = Array.from(document.querySelectorAll('#blog-posts .blog-post'));
+        const viewport   = document.querySelector('.blog-posts-viewport');
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        if (postEls.length <= 1) {
+            if (postEls.length === 1) postEls[0].style.display = 'block';
+            return;
+        }
+
+        let current = 0;
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'pagination-btn';
+        prevBtn.textContent = '← prev';
+
+        const info = document.createElement('span');
+        info.className = 'pagination-info';
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'pagination-btn';
+        nextBtn.textContent = 'next →';
+
+        function showPage(idx) {
+            postEls.forEach((p, i) => p.style.display = i === idx ? 'block' : 'none');
+            viewport.scrollTop = 0;
+            current = idx;
+            prevBtn.disabled = idx === 0;
+            nextBtn.disabled = idx === postEls.length - 1;
+            info.textContent  = `${idx + 1} / ${postEls.length}`;
+        }
+
+        prevBtn.onclick = () => showPage(current - 1);
+        nextBtn.onclick = () => showPage(current + 1);
+
+        pagination.appendChild(prevBtn);
+        pagination.appendChild(info);
+        pagination.appendChild(nextBtn);
+
+        showPage(0);
     }
 
     // ── Broken heart click effect ─────────────────────────────────────────────
@@ -1042,42 +1264,8 @@
 
     // ── Init ──────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
-        const posts    = Array.from(document.querySelectorAll('.blog-post'));
-        const viewport = document.querySelector('.blog-posts-viewport');
-        const pagination = document.getElementById('pagination');
-        let current = 0;
-
-        function showPage(idx) {
-            posts.forEach((p, i) => p.style.display = i === idx ? 'block' : 'none');
-            viewport.scrollTop = 0;
-            current = idx;
-            prevBtn.disabled = idx === 0;
-            nextBtn.disabled = idx === posts.length - 1;
-            info.textContent  = `${idx + 1} / ${posts.length}`;
-        }
-
-        // Build controls
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'pagination-btn';
-        prevBtn.textContent = '← prev';
-        prevBtn.onclick = () => showPage(current - 1);
-
-        const info = document.createElement('span');
-        info.className = 'pagination-info';
-
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'pagination-btn';
-        nextBtn.textContent = 'next →';
-        nextBtn.onclick = () => showPage(current + 1);
-
-        pagination.appendChild(prevBtn);
-        pagination.appendChild(info);
-        pagination.appendChild(nextBtn);
-
-        // Hide pagination controls if only one post
-        if (posts.length <= 1) pagination.style.display = 'none';
-
-        showPage(0);
+        staticPostsHtml = document.getElementById('blog-posts').innerHTML;
+        setupPagination();
     });
     </script>
 </body>
