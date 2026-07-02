@@ -975,11 +975,12 @@
                     const tags   = (el.dataset.tags || '').split(',');
                     const title  = (el.dataset.title || '').toLowerCase();
                     const artist = (el.dataset.artist || '').toLowerCase();
+                    const body   = (el.querySelector('.blog-post-body')?.textContent || '').toLowerCase();
                     let keep = true;
                     if (activeTag) keep = tags.includes(activeTag);
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
-                        keep = keep && (title.includes(q) || artist.includes(q));
+                        keep = keep && (title.includes(q) || artist.includes(q) || body.includes(q));
                     }
                     if (!keep) el.remove();
                 });
