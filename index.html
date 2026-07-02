@@ -292,6 +292,91 @@
             color: var(--purple-light);
         }
 
+        /* ── Search Results List ── */
+        .search-result {
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid rgba(107, 0, 153, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .search-result-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+        }
+
+        .search-result-header:hover {
+            background: rgba(107, 0, 153, 0.25);
+        }
+
+        .search-result-heading {
+            min-width: 0;
+        }
+
+        .search-result-title {
+            font-family: "Special Elite", serif;
+            font-size: 20px;
+            color: #ffffff;
+            text-shadow: 1px 1px 0 #000000;
+        }
+
+        .search-result-snippet {
+            display: block;
+            font-size: 13px;
+            color: var(--purple-light);
+            margin-top: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .search-result-snippet mark {
+            background: var(--purple-main);
+            color: #ffffff;
+            border-radius: 2px;
+        }
+
+        .search-result-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .search-result-date {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            white-space: nowrap;
+        }
+
+        .search-result-chevron {
+            color: var(--purple-light);
+            transition: transform 0.2s;
+        }
+
+        .search-result.open .search-result-chevron {
+            transform: rotate(90deg);
+        }
+
+        .search-result-body {
+            display: none;
+            padding: 0 16px 16px;
+        }
+
+        .search-result.open .search-result-body {
+            display: block;
+        }
+
+        .search-result-body .blog-post {
+            background: transparent;
+            border: none;
+            border-top: 1px solid var(--purple-main);
+            border-radius: 0;
+            padding: 14px 0 0;
+        }
+
         .blog-container h2 {
             color: #ffffff;
             font-family: "Special Elite", serif;
@@ -963,6 +1048,76 @@
     }
 
     // ── Render ────────────────────────────────────────────────────────────────
+    function escapeRegExp(text) {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Build a highlighted excerpt of text around the first match of query
+    function buildSnippet(text, query) {
+        if (!text || !query) return '';
+        const lower = text.toLowerCase();
+        const idx = lower.indexOf(query.toLowerCase());
+        if (idx === -1) return '';
+        const start = Math.max(0, idx - 40);
+        const end   = Math.min(text.length, idx + query.length + 60);
+        let snippet = text.slice(start, end).trim();
+        if (start > 0) snippet = '…' + snippet;
+        if (end < text.length) snippet = snippet + '…';
+        const safe = escapeHtml(snippet);
+        return safe.replace(new RegExp(escapeRegExp(escapeHtml(query)), 'ig'), m => `<mark>${m}</mark>`);
+    }
+
+    // Render matching posts as a clickable, expandable results list
+    function renderSearchResults(matchEls) {
+        const list = document.getElementById('blog-posts');
+        document.getElementById('pagination').innerHTML = '';
+
+        if (matchEls.length === 0) {
+            list.innerHTML = `<p style="text-align:center;color:var(--purple-light);padding:20px;">no posts match ⛧</p>`;
+            return;
+        }
+
+        list.innerHTML = '';
+        const q = searchQuery.toLowerCase();
+
+        matchEls.forEach(el => {
+            const title    = el.querySelector('.blog-post-title')?.textContent
+                              || el.dataset.title || 'Untitled';
+            const date     = el.querySelector('.blog-post-date')?.textContent || '';
+            const bodyText = el.querySelector('.blog-post-body')?.textContent || '';
+            const snippet  = buildSnippet(bodyText, q);
+
+            const row = document.createElement('div');
+            row.className = 'search-result';
+
+            const header = document.createElement('div');
+            header.className = 'search-result-header';
+            header.innerHTML = `
+                <div class="search-result-heading">
+                    <span class="search-result-title">${escapeHtml(title)}</span>
+                    ${snippet ? `<span class="search-result-snippet">${snippet}</span>` : ''}
+                </div>
+                <div class="search-result-meta">
+                    <span class="search-result-date">${escapeHtml(date)}</span>
+                    <span class="search-result-chevron">▶</span>
+                </div>
+            `;
+            header.addEventListener('click', () => {
+                const wasOpen = row.classList.contains('open');
+                list.querySelectorAll('.search-result.open').forEach(r => r.classList.remove('open'));
+                if (!wasOpen) row.classList.add('open');
+            });
+
+            const body = document.createElement('div');
+            body.className = 'search-result-body';
+            body.appendChild(el);
+
+            row.appendChild(header);
+            row.appendChild(body);
+            list.appendChild(row);
+        });
+    }
+
     function renderPosts() {
         const list = document.getElementById('blog-posts');
         const isFiltering = activeTag !== null || searchQuery !== '';
@@ -970,19 +1125,26 @@
         // No dynamic posts — filter static HTML posts via data attributes
         if (posts.length === 0) {
             list.innerHTML = staticPostsHtml || '';
-            if (activeTag || searchQuery) {
-                Array.from(list.querySelectorAll('.blog-post')).forEach(el => {
+            const allEls = Array.from(list.querySelectorAll('.blog-post'));
+
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                const matches = allEls.filter(el => {
                     const tags   = (el.dataset.tags || '').split(',');
                     const title  = (el.dataset.title || '').toLowerCase();
                     const artist = (el.dataset.artist || '').toLowerCase();
                     const body   = (el.querySelector('.blog-post-body')?.textContent || '').toLowerCase();
-                    let keep = true;
-                    if (activeTag) keep = tags.includes(activeTag);
-                    if (searchQuery) {
-                        const q = searchQuery.toLowerCase();
-                        keep = keep && (title.includes(q) || artist.includes(q) || body.includes(q));
-                    }
-                    if (!keep) el.remove();
+                    const tagOk  = !activeTag || tags.includes(activeTag);
+                    return tagOk && (title.includes(q) || artist.includes(q) || body.includes(q));
+                });
+                renderSearchResults(matches);
+                return;
+            }
+
+            if (activeTag) {
+                allEls.forEach(el => {
+                    const tags = (el.dataset.tags || '').split(',');
+                    if (!tags.includes(activeTag)) el.remove();
                 });
                 if (list.querySelectorAll('.blog-post').length === 0) {
                     list.innerHTML = `<p style="text-align:center;color:var(--purple-light);padding:20px;">no posts match ⛧</p>`;
